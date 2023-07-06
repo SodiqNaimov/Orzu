@@ -96,14 +96,14 @@ class SQLite:
 
     def calaculate_sum_user(self):
         with self.connection:
-            self.cursor.execute("""SELECT user_id FROM users""")
+            self.cursor.execute("""SELECT telegram_id FROM users_user""")
             rows = self.cursor.fetchall()
 
             return len(rows)
 
     def send_user_message(self):
         with self.connection:
-            self.cursor.execute("""SELECT user_id FROM users""")
+            self.cursor.execute("""SELECT telegram_id FROM users_user""")
             rows = self.cursor.fetchall()
 
             return rows
@@ -126,14 +126,14 @@ class SQLite:
 
     def get_data_lang(self, user_id):
         with self.connection:
-            self.cursor.execute("""SELECT language FROM users WHERE user_id = ? """, [user_id])
+            self.cursor.execute("""SELECT language FROM users_user WHERE telegram_id = ? """, [user_id])
             rows = self.cursor.fetchall()
 
             return rows
 
     def update_data_lang(self,lang, user_id):
         with self.connection:
-            self.cursor.execute("""UPDATE users SET language =? WHERE user_id = ? """, (lang, user_id))
+            self.cursor.execute("""UPDATE users_user SET language =? WHERE telegram_id = ? """, (lang, user_id))
             rows = self.cursor.fetchall()
 
             return rows
