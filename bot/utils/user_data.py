@@ -1,5 +1,6 @@
 import sqlite3
 
+from django.contrib.auth.hashers import make_password
 
 from bot.utils.config import *
 from telebot.storage import StateMemoryStorage
@@ -80,8 +81,8 @@ class SQLite:
         self.connection.close()
     def insert_to_users(self, user_id, language):
         with self.connection:
-            self.cursor.execute("INSERT INTO users_user (telegram_id, language,type,is_superuser) VALUES (?,?,?,?)",
-                                [user_id,language,UserType.CUSTOMER,False])
+            self.cursor.execute("INSERT INTO users_user (telegram_id, language,type,is_superuser,password) VALUES (?,?,?,?)",
+                                [user_id,language,UserType.CUSTOMER,False,make_password("")])
 
     def is_registered(self, user_id):
         with self.connection:
