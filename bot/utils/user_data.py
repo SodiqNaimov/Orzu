@@ -82,7 +82,7 @@ class SQLite:
 
     def is_registered(self, user_id):
         with self.connection:
-            self.cursor.execute("""SELECT telegram_id FROM users_user WHERE user_id = ? """, [user_id])
+            self.cursor.execute("""SELECT telegram_id FROM users_user WHERE telegram_id = ? """, [user_id])
             rows = self.cursor.fetchall()
 
             return rows
