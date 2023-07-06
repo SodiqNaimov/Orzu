@@ -14,8 +14,8 @@ from users.mangers import SuperUserManager, UserManager
 class User(AbstractBaseUser, PermissionsMixin):
     phone = PhoneNumberField(_("phone"), unique=True,blank=True,null=True)
     password = models.CharField(_("password"), max_length=128, blank=True,null=True)
-    first_name = models.CharField(_("first name"), max_length=150, blank=True)
-    last_name = models.CharField(_("last name"), max_length=150, blank=True)
+    first_name = models.CharField(_("first name"), max_length=150, blank=True,null=True)
+    last_name = models.CharField(_("last name"), max_length=150, blank=True,null=True)
     language = models.CharField(max_length=15, choices=settings.LANGUAGES, default='uz')
     telegram_id = models.BigIntegerField(null=True, blank=True, unique=True)
     type = models.CharField(max_length=65, choices=UserType.choices)
@@ -46,15 +46,9 @@ class User(AbstractBaseUser, PermissionsMixin):
         # https://stackoverflow.com/questions/22025476/what-is-swappable-in-model-meta-for
 
     def __str__(self):
-        return self.full_name
+        return self.telegram_id or ""
 
-    @property
-    def full_name(self):
-        """
-        Return the first_name plus the last_name, with a space in between.
-        """
-        full_name = "%s %s" % (self.first_name, self.last_name)
-        return full_name.strip()
+
 
 
 class SuperUser(User):
