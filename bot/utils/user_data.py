@@ -7,6 +7,9 @@ from telebot.types import KeyboardButton, ReplyKeyboardMarkup,\
     ReplyKeyboardRemove, InlineKeyboardMarkup, InlineKeyboardButton
 from telebot.handler_backends import State, StatesGroup
 
+from users.choices import UserType
+
+
 # db = sqlite3.connect(DATABASE)
 # c = db.cursor()
 #
@@ -77,8 +80,8 @@ class SQLite:
         self.connection.close()
     def insert_to_users(self, user_id, language):
         with self.connection:
-            self.cursor.execute("INSERT INTO users_user (telegram_id, language) VALUES (?,?)",
-                                [user_id,language])
+            self.cursor.execute("INSERT INTO users_user (telegram_id, language,type) VALUES (?,?,?)",
+                                [user_id,language,UserType.CUSTOMER])
 
     def is_registered(self, user_id):
         with self.connection:
