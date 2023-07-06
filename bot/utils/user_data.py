@@ -77,12 +77,12 @@ class SQLite:
         self.connection.close()
     def insert_to_users(self, user_id, language):
         with self.connection:
-            self.cursor.execute("INSERT INTO users (user_id, language) VALUES (?,?)",
+            self.cursor.execute("INSERT INTO users_user (telegram_id, language) VALUES (?,?)",
                                 [user_id,language])
 
     def is_registered(self, user_id):
         with self.connection:
-            self.cursor.execute("""SELECT user_id FROM users WHERE user_id = ? """, [user_id])
+            self.cursor.execute("""SELECT telegram_id FROM users_user WHERE user_id = ? """, [user_id])
             rows = self.cursor.fetchall()
 
             return rows
