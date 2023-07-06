@@ -12,7 +12,7 @@ from users.mangers import SuperUserManager, UserManager
 
 
 class User(AbstractBaseUser, PermissionsMixin):
-    phone = PhoneNumberField(_("phone"), unique=True)
+    phone = PhoneNumberField(_("phone"), unique=True,blank=True,null=True)
     password = models.CharField(_("password"), max_length=128, blank=True)
     first_name = models.CharField(_("first name"), max_length=150, blank=True)
     last_name = models.CharField(_("last name"), max_length=150, blank=True)
