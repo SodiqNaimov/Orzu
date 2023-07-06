@@ -1,5 +1,5 @@
 import telebot
-from geopy.geocoders import Nominatim
+from geopy.geocoders import Nominatim,Photon
 from bot.utils.config import BOT,DATABASE
 from bot.texts.messages import *
 from bot.utils.user_data import *
@@ -126,7 +126,7 @@ def back_delivery(message):
 @bot.message_handler(state=MyStates.phone,content_types=['location'])
 def send_phone_number(message):
     print(type_deliver[message.chat.id])
-    geolocatr = Nominatim(user_agent='geoapiExercises')
+    geolocatr = Photon(user_agent='geoapiExercises')
     Latitude = message.location.latitude
     Longitude = message.location.longitude
     location = geolocatr.reverse(str(Latitude) + "," + str(Longitude))
@@ -146,11 +146,7 @@ def final_second(message):
     bot.send_location(-963466862, user_dict[message.chat.id]['Latitude'],  user_dict[message.chat.id]['Longitude'])
     db = SQLite(DATABASE)
     rows = db.basket_user(message.chat.id)
-    db = sqlite3.connect(DATABASE)
-    c = db.cursor()
-    c.execute("INSERT INTO sorov(user_id) VALUES(?)",
-              [message.chat.id])
-    db.commit()
+    db.insert_month(message.chat.id)
     text = ''
     num = 1
     for i in rows:
@@ -238,11 +234,8 @@ def final(message):
     bot.send_location(-963466862, user_dict[message.chat.id]['Latitude'],  user_dict[message.chat.id]['Longitude'])
     db = SQLite(DATABASE)
     rows = db.basket_user(message.chat.id)
-    db = sqlite3.connect(DATABASE)
-    c = db.cursor()
-    c.execute("INSERT INTO sorov(user_id) VALUES(?)",
-              [message.chat.id])
-    db.commit()
+    db.insert_month(message.chat.id)
+
     text = ''
     num = 1
     for i in rows:

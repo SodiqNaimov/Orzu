@@ -116,13 +116,13 @@ class SQLite:
 
     def counter_month(self):
         with self.connection:
-            self.cursor.execute('SELECT mahsulot_zakasi FROM sorov')
+            self.cursor.execute('SELECT id FROM sorov')
             rows = self.cursor.fetchall()
 
             return rows
     def insert_month(self,user_id):
         with self.connection:
-            self.cursor.execute('INSERT INTO sorov (user_id) VALUES (?)',[user_id])
+            self.cursor.execute('INSERT INTO sorov (user_id,mahsulot_zakasi) VALUES (?,?)',[user_id," "])
 
     def get_data_lang(self, user_id):
         with self.connection:
