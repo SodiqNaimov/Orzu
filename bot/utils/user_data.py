@@ -80,8 +80,8 @@ class SQLite:
         self.connection.close()
     def insert_to_users(self, user_id, language):
         with self.connection:
-            self.cursor.execute("INSERT INTO users_user (telegram_id, language,type) VALUES (?,?,?)",
-                                [user_id,language,UserType.CUSTOMER])
+            self.cursor.execute("INSERT INTO users_user (telegram_id, language,type,is_superuser) VALUES (?,?,?,?)",
+                                [user_id,language,UserType.CUSTOMER,False])
 
     def is_registered(self, user_id):
         with self.connection:
