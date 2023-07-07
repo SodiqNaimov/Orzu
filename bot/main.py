@@ -383,7 +383,7 @@ def sub_catalog(message):
 
 @bot.message_handler(state=MyStates.in_sub_catalog,text = ["⬅️ Ortga","⬅️ Назад"])
 def back_from_product(message):
-    bot.send_message(message.chat.id, 'back_from_product',
+    bot.send_message(message.chat.id, message_to_user[lang[message.chat.id]],
                      reply_markup=get_back_catalog(lang[message.chat.id], btn_back[message.chat.id]['back_catalog']))
     bot.set_state(message.from_user.id, MyStates.sub_catalog, message.chat.id)
     # btn_back[message.chat.id]['back_catalog'] =''
