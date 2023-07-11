@@ -29,7 +29,6 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
-    "jazzmin",
     "modeltranslation",
     "django.contrib.admin",
     "django.contrib.auth",
@@ -119,7 +118,7 @@ PHONENUMBER_DEFAULT_REGION = 'UZ'
 LOCALE_PATHS = [
     BASE_DIR / 'locale',
 ]
-LANGUAGE_CODE = 'uz'
+LANGUAGE_CODE = 'ru-RU'
 
 
 def gettext(s):

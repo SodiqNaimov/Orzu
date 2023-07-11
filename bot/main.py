@@ -6,7 +6,7 @@ from bot.utils.user_data import *
 from bot.keyboards.reply_markup import *
 from telebot import custom_filters
 bot = telebot.TeleBot(BOT,num_threads=2,parse_mode="HTML")
-
+basket_to_user = {}
 lang = {}
 data = {}
 btn_back = {}
@@ -25,6 +25,7 @@ state = ConversationState()
 @bot.message_handler(commands=['start'])
 def start(message):
     global lang
+    basket_to_user[message.chat.id] = []
     # Получаем текущую дату
     # today = datetime.date.today().strftime('%Y-%m-%d')
     # db = SQLite(DATABASE)
@@ -338,8 +339,9 @@ def catalog(message):
     btn_back[message.chat.id] = {'back_catalog':'','back_sub_catalog':'','back_in_sub_catalog_show':'','back_in_pod_sub_catalog_show':'','back_from_product':'','back_from_basket':'',
                                  'back_man_in_sub_catalog_show':''}
 
-    bot.send_message(message.chat.id, message_to_user[lang[message.chat.id]],reply_markup=get_catalog(lang[message.chat.id]))
+    bot.send_message(message.chat.id, catalog_message[lang[message.chat.id]],reply_markup=get_catalog(lang[message.chat.id]))
     bot.set_state(message.from_user.id, MyStates.catalog_st, message.chat.id)
+    bot.delete_message(chat_id=message.chat.id, message_id=message.message_id - 1)
 
 @bot.message_handler(state=MyStates.catalog_st,text = ["⬅️ Ortga","⬅️ Назад"])
 def back_from_catalog(message):
@@ -355,10 +357,15 @@ def back_from_catalog(message):
 
 @bot.message_handler(state=MyStates.catalog_st)
 def catalog_menu(message):
-    print(btn_back[message.chat.id])
+    # print(btn_back[message.chat.id])
+    print(message.message_id)
+    print(message)
+    # bot.edit_message_text
     btn_back[message.chat.id]['back_catalog'] = get_sub_catalog(lang[message.chat.id], message.text)[2]
+    # bot.edit_message_text(text="1", chat_id=message.chat.id, message_id=message.message_id - 2)
     bot.send_message(message.chat.id, message_to_user[lang[message.chat.id]], reply_markup=get_sub_catalog(lang[message.chat.id],message.text)[0])
     bot.set_state(message.from_user.id, MyStates.sub_catalog, message.chat.id)
+    bot.delete_message(chat_id=message.chat.id, message_id=message.message_id - 1)
 
 @bot.message_handler(state=MyStates.sub_catalog,text = ["⬅️ Ortga","⬅️ Назад"])
 def back_catalog_menu(message):
@@ -377,14 +384,19 @@ def back_catalog_menu(message):
 def sub_catalog(message):
     print(btn_back[message.chat.id])
     print(message.text)
+    # bot.edit_message_text(chat_id=message.chat.id,message_id=message.message_id,text=message_to_user[lang[message.chat.id]],reply_markup=get_second_sub_catalog(lang[message.chat.id],message.text)[0])
+
     btn_back[message.chat.id]['back_sub_catalog'] = (get_sub_catalog(lang[message.chat.id],message.text)[2])
     bot.send_message(message.chat.id, message_to_user[lang[message.chat.id]], reply_markup=get_second_sub_catalog(lang[message.chat.id],message.text)[0])
     bot.set_state(message.from_user.id, MyStates.in_sub_catalog, message.chat.id)
+    bot.delete_message(chat_id=message.chat.id, message_id=message.message_id - 1)
 
 @bot.message_handler(state=MyStates.in_sub_catalog,text = ["⬅️ Ortga","⬅️ Назад"])
 def back_from_product(message):
     bot.send_message(message.chat.id, message_to_user[lang[message.chat.id]],
                      reply_markup=get_back_catalog(lang[message.chat.id], btn_back[message.chat.id]['back_catalog']))
+    bot.delete_message(chat_id=message.chat.id, message_id=message.message_id - 1)
+
     bot.set_state(message.from_user.id, MyStates.sub_catalog, message.chat.id)
     # btn_back[message.chat.id]['back_catalog'] =''
 ############################################################sub_catalog
@@ -403,20 +415,24 @@ def in_sub_catalog_show(message):
         print(btn_back[message.chat.id])
 
         select_user[message.chat.id] = []
-        print(message.text)
         db = SQLite(DATABASE)
         row = db.get_parent_id_from_database(lang[message.chat.id], message.text)
         btn_back[message.chat.id]['back_in_pod_sub_catalog_show'] = row[0][0]
-        print(btn_back[message.chat.id]['back_in_pod_sub_catalog_show'])
+
+
         bot.send_message(message.chat.id, message_to_user[lang[message.chat.id]], reply_markup=get_products(lang[message.chat.id],message.text)[0])
+        bot.delete_message(chat_id=message.chat.id, message_id=message.message_id - 1)
+
         bot.set_state(message.from_user.id, MyStates.back_from_products, message.chat.id)
 
     else:
         print(btn_back[message.chat.id])
 
         btn_back[message.chat.id]['back_in_sub_catalog_show'] = (get_sub_catalog(lang[message.chat.id], message.text)[2])
-        # print(btn_back[message.chat.id])
+
         bot.send_message(message.chat.id, message_to_user[lang[message.chat.id]], reply_markup=get_sub_catalog(lang[message.chat.id],message.text)[0])
+        bot.delete_message(chat_id=message.chat.id, message_id=message.message_id - 1)
+
         bot.set_state(message.from_user.id, MyStates.in_pod_sub_catalog, message.chat.id)
 
 @bot.message_handler(state=MyStates.in_pod_sub_catalog,text = ["⬅️ Ortga","⬅️ Назад"])
@@ -424,21 +440,28 @@ def back_from_product(message):
 
     bot.send_message(message.chat.id, message_to_user[lang[message.chat.id]],
                      reply_markup=get_back_catalog(lang[message.chat.id], btn_back[message.chat.id]['back_sub_catalog'] ))
+    bot.delete_message(chat_id=message.chat.id, message_id=message.message_id - 1)
+
     bot.set_state(message.from_user.id, MyStates.in_sub_catalog, message.chat.id)
 ############################################################in_sub_catalog_show
 
 @bot.message_handler(state=MyStates.back_from_products,text = ["⬅️ Ortga","⬅️ Назад"])
 def back_from_products_btn(message):
     if btn_back[message.chat.id]['back_in_pod_sub_catalog_show'] == '':
+
         bot.send_message(message.chat.id, message_to_user[lang[message.chat.id]],
                          reply_markup=get_back_catalog(lang[message.chat.id],
                                                        btn_back[message.chat.id]['back_in_sub_catalog_show']))
+        bot.delete_message(chat_id=message.chat.id, message_id=message.message_id - 1)
+
         bot.set_state(message.from_user.id, MyStates.in_sub_catalog, message.chat.id)
 
     # Code to be executed if either condition is true
     else:
         bot.send_message(message.chat.id, message_to_user[lang[message.chat.id]],
                          reply_markup=get_sec_back_catalog(lang[message.chat.id], btn_back[message.chat.id]['back_in_pod_sub_catalog_show']))
+        bot.delete_message(chat_id=message.chat.id, message_id=message.message_id - 1)
+
         bot.set_state(message.from_user.id, MyStates.in_sub_catalog, message.chat.id)
         btn_back[message.chat.id]['back_in_pod_sub_catalog_show'] = ''
 
@@ -452,7 +475,10 @@ def in_pod_sub_catalog_show(message):
         print('man')
         # btn_back[message.chat.id]['back_from_product'] = (get_sub_catalog(lang[message.chat.id], message.text)[2])
         btn_back[message.chat.id]['back_man_in_sub_catalog_show'] = (get_sub_catalog(lang[message.chat.id], message.text)[2])
+
         bot.send_message(message.chat.id, message_to_user[lang[message.chat.id]], reply_markup=get_products(lang[message.chat.id],message.text)[0])
+        bot.delete_message(chat_id=message.chat.id, message_id=message.message_id - 1)
+
         bot.set_state(message.from_user.id, MyStates.back_from_products, message.chat.id)
     else:
         print('q')
@@ -460,12 +486,16 @@ def in_pod_sub_catalog_show(message):
 
         btn_back[message.chat.id]['back_in_sub_catalog_show'] = (get_sub_catalog(lang[message.chat.id], message.text)[2])
         bot.send_message(message.chat.id, message_to_user[lang[message.chat.id]], reply_markup=get_sub_catalog(lang[message.chat.id],message.text)[0])
+        bot.delete_message(chat_id=message.chat.id, message_id=message.message_id - 1)
+
         bot.set_state(message.from_user.id, MyStates.in_product, message.chat.id)
 
 @bot.message_handler(state=MyStates.in_product,text = ["⬅️ Ortga","⬅️ Назад"])
 def back_from_four_to(message):
     bot.send_message(message.chat.id, message_to_user[lang[message.chat.id]],
                      reply_markup=get_back_catalog(lang[message.chat.id], btn_back[message.chat.id]['back_in_sub_catalog_show'] ))
+    bot.delete_message(chat_id=message.chat.id, message_id=message.message_id - 1)
+
     bot.set_state(message.from_user.id, MyStates.in_pod_sub_catalog, message.chat.id)
 
 ############################################################in_pod_sub_catalog_show
@@ -484,21 +514,28 @@ def in_last_product(message):
     # btn_back[message.chat.id]['back_from_product'] = (get_sub_catalog(lang[message.chat.id], message.text)[2])
     btn_back[message.chat.id]['back_from_product'] = row[0][0]
     select_user[message.chat.id] = []
-
+    # bot.edit_message_text(chat_id=message.chat.id, message_id=message.message_id,
+    #                       text=message_to_user[lang[message.chat.id]],
+    #                       reply_markup=get_products(lang[message.chat.id], message.text)[0])
     bot.send_message(message.chat.id, message_to_user[lang[message.chat.id]],
                      reply_markup=get_products(lang[message.chat.id], message.text)[0])
+    bot.delete_message(chat_id=message.chat.id, message_id=message.message_id - 1)
+
     bot.set_state(message.from_user.id, MyStates.back_from_products, message.chat.id)
 
 @bot.message_handler(state=MyStates.back_from_products,text = ["⬅️ Ortga","⬅️ Назад"])
 def back_from_products_btn(message):
     bot.send_message(message.chat.id, message_to_user[lang[message.chat.id]],
                      reply_markup=get_back_catalog(lang[message.chat.id], btn_back[message.chat.id]['back_from_product']))
+    bot.delete_message(chat_id=message.chat.id, message_id=message.message_id - 1)
+
     bot.set_state(message.from_user.id, MyStates.in_pod_sub_catalog, message.chat.id)
 
 
 @bot.message_handler(state=MyStates.back_from_products)
 def products(message):
     select_user[message.chat.id] = []
+    basket_to_user[message.chat.id] = message.text
     db = SQLite(DATABASE)
     row = db.select_product_id(lang[message.chat.id],message.text)
     btn_back[message.chat.id]['back_from_basket'] = row[0][0]
@@ -511,13 +548,13 @@ def products(message):
 
     try:
         if lang[message.chat.id] =='uz':
-            product_caption = f"💻 Mahsulot nomi: {row[0][0]}\n📃 Mahsulot izohi: {row[0][1]}\n💰 Mahsulot narxi: {d} so'm"
+            product_caption = f"💻 Mahsulot: {row[0][0]}\n💬 Mahsulot izohi: {row[0][1]}\n💰 Narxi: {d} so'm"
             bot.send_photo(message.chat.id, photo=open(f'{IMAGE}/{row[0][3]}', 'rb'), caption=product_caption,reply_markup=get_number(lang[message.chat.id]))
             bot.send_message(message.chat.id, choose_message[lang[message.chat.id]])
             bot.set_state(message.from_user.id, MyStates.basket, message.chat.id)
 
         if lang[message.chat.id] =='ru':
-            product_caption = f"💻 Название товара: {row[0][0]}\n📃 Описание товара: {row[0][1]}\n💰 Цена товара: {d} so'm"
+            product_caption = f"💻 Название: {row[0][0]}\n💬 Описание: {row[0][1]}\n💰 Цена: {d} so'm"
             bot.send_photo(message.chat.id, photo=open(f'{IMAGE}/{row[0][3]}', 'rb'), caption=product_caption,reply_markup=get_number(lang[message.chat.id]))
             bot.send_message(message.chat.id, choose_message[lang[message.chat.id]])
             bot.set_state(message.from_user.id, MyStates.basket, message.chat.id)
@@ -533,6 +570,8 @@ def basket_back(message):
     print(btn_back[message.chat.id])
     bot.send_message(message.chat.id, message_to_user[lang[message.chat.id]],
                      reply_markup=get_last_products(lang[message.chat.id], btn_back[message.chat.id]['back_from_basket']))
+    bot.delete_message(chat_id=message.chat.id, message_id=message.message_id - 1)
+
     bot.set_state(message.from_user.id, MyStates.back_from_products, message.chat.id)
 
 
@@ -544,6 +583,8 @@ def basket_func(message):
         row = db.select_product_show(lang[message.chat.id],select_user[message.chat.id][0])
         total_price = int(row[0][2]) * int(count_of_products)
         db.insert_baskets(message.chat.id,select_user[message.chat.id][0],count_of_products,row[0][2],total_price)
+        bot.send_message(message.chat.id, basket_user[lang[message.chat.id]].format(basket_to_user[message.chat.id]))
+
         header(message)
     except Exception as e:
         print(e)
@@ -642,7 +683,7 @@ def mobile_social(message):
     markup = InlineKeyboardMarkup(row_width=1)
     btn1 = InlineKeyboardButton("Telegram", url="https://t.me/orzutech_group")
     btn2 = InlineKeyboardButton("Instagram",
-                                      url="https://instagram.com/orzutechuz?igshid=Y2IzZGU1MTFhOQ==")
+                                      url="https://instagram.com/orzutech?igshid=MzRlODBiNWFlZA==")
     btn3 = InlineKeyboardButton("Web site", url="https://orzutech.uz/")
 
     btn4 = InlineKeyboardButton("Facebook", url="https://www.facebook.com/orzutech.bukhara?mibextid=ZbWKwL")
@@ -982,3 +1023,4 @@ bot.add_custom_filter(custom_filters.TextMatchFilter())
 bot.add_custom_filter(custom_filters.StateFilter(bot))
 bot.add_custom_filter(custom_filters.IsDigitFilter())
 bot.add_custom_filter(custom_filters.ChatFilter())
+# bot.infinity_polling()

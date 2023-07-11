@@ -24,7 +24,7 @@ catalog_btn = {"uz":["🖥 Kompyuterlar bo'limi","📱 Mobil telefonlar bo'limi"
 baskets_btn = {"uz":['♻️ Savatni tozalash', '📤 Buyurtmani yakunlash',"⬅️ Ortga"],
                "ru":["♻️ Очистить Корзину","📤 Оформить заказ","⬅️ Назад"]}
 
-order_btn  = {"uz":["🚙 Eltib berish","🚶 Borib olish"],
+order_btn  = {"uz":["🚙 Yetkazib berish","🚶 Borib olish"],
               "ru":["🚙 Доставка","🚶 Самовывоз"]}
 
 location_btn = {'uz': "📍 Manzilni Yuborish",
