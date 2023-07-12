@@ -5,24 +5,24 @@ from telebot.types import KeyboardButton, ReplyKeyboardMarkup,\
 from bot.utils.user_data import *
 
 def get_lang():
-    markup = ReplyKeyboardMarkup(True, True, row_width=2)
+    markup = ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
     markup.add(*lang_msg)
     return markup
 
 def get_header(lang):
-    markup = ReplyKeyboardMarkup(True, True, row_width=2)
+    markup = ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
     markup.add(*header_message[lang])
     return markup
 
 def get_order_btn(lang):
-    markup = ReplyKeyboardMarkup(True, True, row_width=2)
+    markup = ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
     markup.add(*order_btn[lang])
     markup.add(*back_btn[lang])
     return markup
 
 
 def get_sozlamalar(lang):
-    markup = ReplyKeyboardMarkup(True, True, row_width=1)
+    markup = ReplyKeyboardMarkup(resize_keyboard=True, row_width=1)
     markup.add(*sozlamalr_button[lang])
 
     return markup
@@ -64,7 +64,7 @@ def get_handle_complaint(lang):
 
     return markup
 def get_catalog(lang):
-    markup = ReplyKeyboardMarkup(True, True, row_width=2)
+    markup = ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
     db = SQLite(DATABASE)
     row = db.select_catalog(lang)
     buttons = [i[0] for i in row]
