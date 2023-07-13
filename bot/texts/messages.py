@@ -1,4 +1,4 @@
-start_msg = "<b>🤝 Assalom Aleykym, men ORZUTECH® do'konlari tarmog'ining virtural yordamchisiman.</b>\n— Sizni do'konimiz mahsulotlari bilan tanishtirishim mumkin, hamda buyurtma berishga yordam berishim mumkin.\nIltimos tilni tanlang 🇺🇿🇷🇺" "\n\n" \
+start_msg = "<b>🤝 Assalom Aleykym, men ORZUTECH® do'konlari tarmog'ining virtural yordamchisiman.</b>\n— Sizni do'konimiz mahsulotlari bilan tanishtirishim, hamda buyurtma berishga yordam berishim mumkin.\nIltimos tilni tanlang 🇺🇿🇷🇺" "\n\n" \
             "<b>🤝 Здравствуйте, Я виртуальный помощник сеть магазинов <b>ORZUTECH®.</b></b> \n— Могу познакомить вас с нашим ассортиментом товаров, а так же оформить заказ.\nПожалуйста, выберите язык 🇺🇿🇷🇺"
 
 message_to_user = {"uz":["Quyidagilardan birini tanlang 👇🏻"],

@@ -597,7 +597,7 @@ def basket_func(message):
 
 
 #############Complaint#########
-@bot.message_handler(state=MyStates.header_menu,text=["🛟 ️Taklif va shikoyatlar", "🛟 ️Предложения и жалобы"])
+@bot.message_handler(state=MyStates.header_menu,text=["🛟 Taklif va shikoyatlar", "🛟 Предложения и жалобы"])
 def complaint(message):
     bot.send_message(message.chat.id, complaint_message[lang[message.chat.id]],reply_markup=get_complaint(lang[message.chat.id]))
     bot.set_state(message.from_user.id, MyStates.complaint, message.chat.id)
@@ -782,6 +782,8 @@ def admin(message):
 def send_with_btn(message):
     bot.send_message(message.chat.id,"Quyidagilardan birini tanlang 👇🏻", reply_markup=get_admin_btn_inline())
     bot.set_state(message.from_user.id, MyStates.admin_send_btn, message.chat.id)
+
+
 
 @bot.message_handler(state=MyStates.admin_send_btn,text="📹 Tugmali Video va Text")
 def send_video_inline(message):
