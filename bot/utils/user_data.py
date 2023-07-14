@@ -215,7 +215,7 @@ class SQLite:
             if lang == 'uz':
                 self.cursor.execute("""SELECT name_uz FROM products_product WHERE category_id == ?""", [text])
             if lang =='ru':
-                self.cursor.execute("""SELECT name_uz FROM products_product WHERE category_id == ?""", [text])
+                self.cursor.execute("""SELECT name_ru FROM products_product WHERE category_id == ?""", [text])
 
             rows = self.cursor.fetchall()
 
@@ -236,7 +236,7 @@ class SQLite:
             if lang == 'uz':
                 self.cursor.execute("""SELECT name_uz,description_uz,regular_price,image FROM products_product WHERE name_uz == ?""", [text])
             if lang == 'ru':
-                self.cursor.execute("""SELECT name_ru,description_uz,regular_price,image FROM products_product WHERE name_uz == ?""", [text])
+                self.cursor.execute("""SELECT name_ru,description_ru,regular_price,image FROM products_product WHERE name_ru == ?""", [text])
 
             rows = self.cursor.fetchall()
 
