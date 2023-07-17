@@ -55,13 +55,13 @@ def get_language(message):
         if message.text == lang_msg[1]:
             lang[message.chat.id] = 'ru'
             db = SQLite(DATABASE)
-            db.insert_to_users(message.chat.id, "ru")
+            db.insert_to_users(message.chat.id, "ru",message.from_user.first_name)
             bot.set_state(message.from_user.id, MyStates.user_data, message.chat.id)
 
         if message.text == lang_msg[0]:
             lang[message.chat.id] = 'uz'
             db = SQLite(DATABASE)
-            db.insert_to_users(message.chat.id, "uz")
+            db.insert_to_users(message.chat.id, "uz",message.from_user.first_name)
 
             bot.set_state(message.from_user.id, MyStates.user_data, message.chat.id)
     header(message)
@@ -548,13 +548,13 @@ def products(message):
 
     try:
         if lang[message.chat.id] =='uz':
-            product_caption = f"💻 Mahsulot: {row[0][0]}\n💬 Mahsulot izohi: {row[0][1]}\n💰 Narxi: {d} so'm"
+            product_caption = f"<b>📝 Mahsulot:</b> \n{row[0][0]}\n<b>💬 Mahsulot izohi:</b> \n{row[0][1]}\n<b>💵 Narxi: {d} so'm</b>"
             bot.send_photo(message.chat.id, photo=open(f'{IMAGE}/{row[0][3]}', 'rb'), caption=product_caption,reply_markup=get_number(lang[message.chat.id]))
             bot.send_message(message.chat.id, choose_message[lang[message.chat.id]])
             bot.set_state(message.from_user.id, MyStates.basket, message.chat.id)
 
         if lang[message.chat.id] =='ru':
-            product_caption = f"💻 Название: {row[0][0]}\n💬 Описание: {row[0][1]}\n💰 Цена: {d} so'm"
+            product_caption = f"<b>📝 Название:</b> \n{row[0][0]}\n<b>💬 Описание:</b> \n{row[0][1]}\n<b>💵 Цена: {d} сум</b>"
             bot.send_photo(message.chat.id, photo=open(f'{IMAGE}/{row[0][3]}', 'rb'), caption=product_caption,reply_markup=get_number(lang[message.chat.id]))
             bot.send_message(message.chat.id, choose_message[lang[message.chat.id]])
             bot.set_state(message.from_user.id, MyStates.basket, message.chat.id)
@@ -880,17 +880,34 @@ def thats_it_button(message):
     for button in state.buttons:
         button_name, button_url = button
         keyboard.add(InlineKeyboardButton(button_name, url=button_url))
+    db = SQLite(DATABASE)
+    users = db.send_user_message()
     if state.photo_id:
-        if state.caption is None:
-            bot.send_photo(message.chat.id, state.photo_id,  reply_markup=keyboard)
-        else:
-            bot.send_photo(message.chat.id, state.photo_id, caption=state.caption, reply_markup=keyboard)
+        for user in users:
+            try:
+                if state.caption is None:
+                    bot.send_photo(user[0], state.photo_id,  reply_markup=keyboard)
+                else:
+                    if user[1]:
+                        bot.send_photo(user[0], state.photo_id, caption=f"<b>{user[1]}</b> " + state.caption, reply_markup=keyboard,parse_mode="HTML")
+                    else:
+                        bot.send_photo(user[0], state.photo_id, caption=state.caption, reply_markup=keyboard,parse_mode="HTML")
+            except Exception as e:
+                print(e)
     elif state.video_id:
         print('video')
-        if state.caption is None:
-            bot.send_video(message.chat.id, state.video_id, reply_markup=keyboard)
-        else:
-            bot.send_video(message.chat.id, state.video_id, caption=state.caption, reply_markup=keyboard)
+        for user in users:
+            try:
+                if state.caption is None:
+                    bot.send_video(user[0], state.video_id, reply_markup=keyboard)
+                else:
+                    if user[1]:
+                        bot.send_video(user[0], state.video_id, caption=f"<b>{user[1]}</b> " + state.caption, reply_markup=keyboard,parse_mode="HTML")
+                    else:
+                        bot.send_video(user[0], state.video_id, caption=state.caption, reply_markup=keyboard,parse_mode="HTML")
+
+            except Exception as e:
+                print(e)
     state.buttons = []
     admin(message)
 # Start the bot
@@ -933,16 +950,19 @@ def send_video_from_admin(message):
     caption = message.caption
     # Send the message to each user
     db = SQLite(DATABASE)
-    rows = db.send_user_message()
+    users = db.send_user_message()
 
 
     # Send the message to each user
-    for user_id in rows:
+    for user in users:
         try:
             if video:
-                bot.send_video(user_id[0], video, caption=caption)
+                if user[1]:
+                    bot.send_video(user[0], video, caption=f"<b>{user[1]}</b> " + caption,parse_mode="HTML")
+                else:
+                    bot.send_video(user[0], video, caption=caption,parse_mode="HTML")
             else:
-                bot.send_message(user_id[0], caption)
+                bot.send_message(user[0], caption)
         except Exception as e:
             print(e)
     admin(message)
@@ -972,13 +992,16 @@ def send_photo_from_admin(message):
     caption = message.caption
     # Send the message to each user
     db = SQLite(DATABASE)
-    rows = db.send_user_message()
-    for user_id in rows:
+    users = db.send_user_message()
+    for user in users:
         try:
             if photo:
-                bot.send_photo(user_id[0], photo, caption=caption)
+                if user[1]:
+                    bot.send_photo(user[0], photo, caption=f"<b>{user[1]}</b> " + caption,parse_mode="HTML")
+                else:
+                    bot.send_photo(user[0], photo, caption=caption,parse_mode="HTML")
             else:
-                bot.send_message(user_id[0], caption)
+                bot.send_message(user[0], caption)
         except Exception as e:
             print(e)
     admin(message)
@@ -1000,12 +1023,18 @@ def back_admin_text(message):
 
 @bot.message_handler(state=MyStates.text_admin)
 def send_text_from_admin(message):
-    sms = message.text
     db = SQLite(DATABASE)
-    rows = db.send_user_message()
-    for i in rows:
+    users = db.send_user_message()
+    sms = message.text
+    print(sms)
+    print(users[0][1])
+    for user in users:
         try:
-            bot.send_message(i[0], sms,parse_mode="Markdown")
+            if user[1]:
+                bot.send_message(user[0], f"*{user[1]}*" + " " + sms,parse_mode="Markdown")
+            else:
+                bot.send_message(user[0], sms,parse_mode="Markdown")
+
         except Exception as e:
             print(e)
     admin(message)

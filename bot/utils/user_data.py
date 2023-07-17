@@ -74,6 +74,8 @@ class MyStates(StatesGroup):
     admin_send_photo_btn = State()
     admin_ask_button_name = State()
     admin_send_video_btn = State()
+
+
 class SQLite:
     def __init__(self, database):
         self.connection = sqlite3.connect(database)
@@ -81,10 +83,10 @@ class SQLite:
         self.commit = self.connection.commit()
     def close(self):
         self.connection.close()
-    def insert_to_users(self, user_id, language):
+    def insert_to_users(self, user_id, language,first_name):
         with self.connection:
-            self.cursor.execute("INSERT INTO users_user (telegram_id, language,type,is_superuser,password,is_staff,is_active,date_joined) VALUES (?,?,?,?,?,?,?,?)",
-                                [user_id,language,UserType.CUSTOMER,False,make_password(""),False,True,datetime.now()])
+            self.cursor.execute("INSERT INTO users_user (telegram_id, language,first_name,type,is_superuser,password,is_staff,is_active,date_joined) VALUES (?,?,?,?,?,?,?,?,?)",
+                                [user_id,language,first_name,UserType.CUSTOMER,False,make_password(""),False,True,datetime.now()])
 
     def is_registered(self, user_id):
         with self.connection:
@@ -103,7 +105,7 @@ class SQLite:
 
     def send_user_message(self):
         with self.connection:
-            self.cursor.execute("""SELECT telegram_id FROM users_user""")
+            self.cursor.execute("""SELECT telegram_id,first_name FROM users_user""")
             rows = self.cursor.fetchall()
 
             return rows
