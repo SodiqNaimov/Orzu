@@ -25,25 +25,26 @@ state = ConversationState()
 @bot.message_handler(commands=['start'])
 def start(message):
     global lang
-    basket_to_user[message.chat.id] = []
-    # Получаем текущую дату
-    # today = datetime.date.today().strftime('%Y-%m-%d')
-    # db = SQLite(DATABASE)
-    # last_reset_date = db.counter()
-    #
-    # # Если текущая дата больше даты последнего сброса, выполняем сброс счетчика
-    # if today > last_reset_date:
-    #     db.update_counter(today)
-    db = SQLite(DATABASE)
-    is_register = db.is_registered(message.chat.id)
-    if len(is_register) == 0:
-        msg = bot.send_message(message.chat.id, start_msg, reply_markup=get_lang())
-        bot.set_state(message.from_user.id, MyStates.lang, message.chat.id)
+    if message.chat.type == 'private':
+        basket_to_user[message.chat.id] = []
+        # Получаем текущую дату
+        # today = datetime.date.today().strftime('%Y-%m-%d')
+        # db = SQLite(DATABASE)
+        # last_reset_date = db.counter()
+        #
+        # # Если текущая дата больше даты последнего сброса, выполняем сброс счетчика
+        # if today > last_reset_date:
+        #     db.update_counter(today)
+        db = SQLite(DATABASE)
+        is_register = db.is_registered(message.chat.id)
+        if len(is_register) == 0:
+            msg = bot.send_message(message.chat.id, start_msg, reply_markup=get_lang())
+            bot.set_state(message.from_user.id, MyStates.lang, message.chat.id)
 
-    else:
-        rows = db.get_data_lang(message.chat.id)
-        lang[message.chat.id] =rows[0][0]
-        header(message)
+        else:
+            rows = db.get_data_lang(message.chat.id)
+            lang[message.chat.id] =rows[0][0]
+            header(message)
     # bot.send_message(message.chat.id, start_msg)
 
 @bot.message_handler(state=MyStates.lang)
@@ -51,63 +52,67 @@ def get_language(message):
 
     global lang
     global user_data
-    if message.text in lang_msg:
-        if message.text == lang_msg[1]:
-            lang[message.chat.id] = 'ru'
-            db = SQLite(DATABASE)
-            db.insert_to_users(message.chat.id, "ru",message.from_user.first_name)
-            bot.set_state(message.from_user.id, MyStates.user_data, message.chat.id)
+    if message.chat.type == 'private':
+        if message.text in lang_msg:
+            if message.text == lang_msg[1]:
+                lang[message.chat.id] = 'ru'
+                db = SQLite(DATABASE)
+                db.insert_to_users(message.chat.id, "ru",message.from_user.first_name)
+                bot.set_state(message.from_user.id, MyStates.user_data, message.chat.id)
 
-        if message.text == lang_msg[0]:
-            lang[message.chat.id] = 'uz'
-            db = SQLite(DATABASE)
-            db.insert_to_users(message.chat.id, "uz",message.from_user.first_name)
+            if message.text == lang_msg[0]:
+                lang[message.chat.id] = 'uz'
+                db = SQLite(DATABASE)
+                db.insert_to_users(message.chat.id, "uz",message.from_user.first_name)
 
-            bot.set_state(message.from_user.id, MyStates.user_data, message.chat.id)
-    header(message)
+                bot.set_state(message.from_user.id, MyStates.user_data, message.chat.id)
+        header(message)
 
 @bot.message_handler(state=MyStates.user_data)
 def header(message):
-    global lang
-    bot.send_message(message.chat.id, message_to_user[lang[message.chat.id]],reply_markup=get_header(lang[message.chat.id]))
-    bot.set_state(message.from_user.id, MyStates.header_menu, message.chat.id)
+    if message.chat.type == 'private':
+        global lang
+        bot.send_message(message.chat.id, message_to_user[lang[message.chat.id]],reply_markup=get_header(lang[message.chat.id]))
+        bot.set_state(message.from_user.id, MyStates.header_menu, message.chat.id)
 
 @bot.message_handler(state=MyStates.header_menu,text=["🛒 Savat", "🛒 Корзина"])
 def basket(message):
-    db = SQLite(DATABASE)
-    rows = db.basket_user(message.chat.id)
-    if len(rows) == 0:
-        bot.send_message(message.chat.id, basket_message[lang[message.chat.id]])
-        header(message)
-    else:
-        text = ''
-        num = 1
-        for i in rows:
-            name = i[0]
-            count = i[1]
-            price = i[2]
-            all_cost = int(price) * int(i[1])
-            number = price
-            formatted_number = "{:,.0f}".format(number).replace(",", " ")
-            number1 = all_cost
-            formatted_number1 = "{:,.0f}".format(number1).replace(",", " ")
-            text += str(num) + ') ' + "<b>" + name + "</b>" +'\n' + count + ' x ' + "<b>" +formatted_number +"</b>" +"<b>" +" so'm" + "</b>"+ ' = ' + str(
-                "<b>" + formatted_number1 + "</b>") +"<b>" +" so'm" + "</b>"+ '\n\n'
-            num += 1
-        overall_cost = []
+    if message.chat.type == 'private':
+        db = SQLite(DATABASE)
+        rows = db.basket_user(message.chat.id)
+        if len(rows) == 0:
+            bot.send_message(message.chat.id, basket_message[lang[message.chat.id]])
+            header(message)
+        else:
+            text = ''
+            num = 1
+            for i in rows:
+                name = i[0]
+                count = i[1]
+                price = i[2]
+                all_cost = int(price) * int(i[1])
+                number = price
+                formatted_number = "{:,.0f}".format(number).replace(",", " ")
+                number1 = all_cost
+                formatted_number1 = "{:,.0f}".format(number1).replace(",", " ")
+                text += str(num) + ') ' + "<b>" + name + "</b>" +'\n' + count + ' x ' + "<b>" +formatted_number +"</b>" +"<b>" +" so'm" + "</b>"+ ' = ' + str(
+                    "<b>" + formatted_number1 + "</b>") +"<b>" +" so'm" + "</b>"+ '\n\n'
+                num += 1
+            overall_cost = []
 
-        for j in rows:
-            overall_cost.append(int(j[3]))
-        number2 = sum(overall_cost)
-        formatted_number2 = "{:,.0f}".format(number2).replace(",", " ")
-        bot.send_message(message.chat.id, basket_count_message[lang[message.chat.id]].format(text,formatted_number2),reply_markup=get_baskets(lang[message.chat.id]))
-        bot.send_message(message.chat.id, baskets_info[lang[message.chat.id]])
-        bot.set_state(message.from_user.id, MyStates.baskets_menu, message.chat.id)
+            for j in rows:
+                overall_cost.append(int(j[3]))
+            number2 = sum(overall_cost)
+            formatted_number2 = "{:,.0f}".format(number2).replace(",", " ")
+            bot.send_message(message.chat.id, basket_count_message[lang[message.chat.id]].format(text,formatted_number2),reply_markup=get_baskets(lang[message.chat.id]))
+            bot.send_message(message.chat.id, baskets_info[lang[message.chat.id]])
+            bot.set_state(message.from_user.id, MyStates.baskets_menu, message.chat.id)
 @bot.message_handler(state=MyStates.baskets_menu,text = ["📤 Buyurtmani yakunlash","📤 Оформить заказ"])
 def order(message):
-    bot.send_message(message.chat.id, order_message[lang[message.chat.id]],reply_markup=get_order_btn(lang[message.chat.id]))
-    bot.set_state(message.from_user.id, MyStates.order_menu, message.chat.id)
-    type_deliver[message.chat.id] = []
+    if message.chat.type == 'private':
+        bot.send_message(message.chat.id, order_message[lang[message.chat.id]],reply_markup=get_order_btn(lang[message.chat.id]))
+        bot.set_state(message.from_user.id, MyStates.order_menu, message.chat.id)
+        type_deliver[message.chat.id] = []
 
 @bot.message_handler(state=MyStates.order_menu,text = ["⬅️ Ortga","⬅️ Назад"])
 def back_from(message):
@@ -115,10 +120,11 @@ def back_from(message):
 
 @bot.message_handler(state=MyStates.order_menu)
 def delivery(message):
-    type_deliver[message.chat.id] = message.text
-    bot.send_message(message.chat.id, deleivery_message[lang[message.chat.id]],reply_markup=get_location(lang[message.chat.id]))
-    bot.set_state(message.from_user.id, MyStates.phone, message.chat.id)
-    user_dict[message.chat.id] = {'Latitude':'','Longitude':'','location':'','phone_number':''}
+    if message.chat.type == 'private':
+        type_deliver[message.chat.id] = message.text
+        bot.send_message(message.chat.id, deleivery_message[lang[message.chat.id]],reply_markup=get_location(lang[message.chat.id]))
+        bot.set_state(message.from_user.id, MyStates.phone, message.chat.id)
+        user_dict[message.chat.id] = {'Latitude':'','Longitude':'','location':'','phone_number':''}
 @bot.message_handler(state=MyStates.phone,text = ["⬅️ Ortga","⬅️ Назад"])
 def back_delivery(message):
     order(message)
@@ -336,12 +342,13 @@ def delete_from_user(message):
 ############################################################Cataolog
 @bot.message_handler(state=MyStates.header_menu,text=["📙 Katalog", "📙 Каталог"])
 def catalog(message):
-    btn_back[message.chat.id] = {'back_catalog':'','back_sub_catalog':'','back_in_sub_catalog_show':'','back_in_pod_sub_catalog_show':'','back_from_product':'','back_from_basket':'',
-                                 'back_man_in_sub_catalog_show':''}
+    if message.chat.type == 'private':
+        btn_back[message.chat.id] = {'back_catalog':'','back_sub_catalog':'','back_in_sub_catalog_show':'','back_in_pod_sub_catalog_show':'','back_from_product':'','back_from_basket':'',
+                                     'back_man_in_sub_catalog_show':''}
 
-    bot.send_message(message.chat.id, catalog_message[lang[message.chat.id]],reply_markup=get_catalog(lang[message.chat.id]))
-    bot.set_state(message.from_user.id, MyStates.catalog_st, message.chat.id)
-    bot.delete_message(chat_id=message.chat.id, message_id=message.message_id - 1)
+        bot.send_message(message.chat.id, catalog_message[lang[message.chat.id]],reply_markup=get_catalog(lang[message.chat.id]))
+        bot.set_state(message.from_user.id, MyStates.catalog_st, message.chat.id)
+        bot.delete_message(chat_id=message.chat.id, message_id=message.message_id - 1)
 
 @bot.message_handler(state=MyStates.catalog_st,text = ["⬅️ Ortga","⬅️ Назад"])
 def back_from_catalog(message):
@@ -599,8 +606,9 @@ def basket_func(message):
 #############Complaint#########
 @bot.message_handler(state=MyStates.header_menu,text=["🛟 Taklif va shikoyatlar", "🛟 Предложения и жалобы"])
 def complaint(message):
-    bot.send_message(message.chat.id, complaint_message[lang[message.chat.id]],reply_markup=get_complaint(lang[message.chat.id]))
-    bot.set_state(message.from_user.id, MyStates.complaint, message.chat.id)
+    if message.chat.type == 'private':
+        bot.send_message(message.chat.id, complaint_message[lang[message.chat.id]],reply_markup=get_complaint(lang[message.chat.id]))
+        bot.set_state(message.from_user.id, MyStates.complaint, message.chat.id)
 
 #############ComplaintVoice#########
 @bot.message_handler(state=MyStates.complaint,text=["🎙 Ovozli xabar shaklida", "🎙 В виде голосового сообщения"])
@@ -670,9 +678,10 @@ def send_hand_complaint(message):
 ######################SocialMedia
 @bot.message_handler(state=MyStates.header_menu,text=["🔆 Ijtimoiy tarmoqlar", "🔆 Социальные сети"])
 def social_media(message):
-    bot.send_message(message.chat.id, ijtimoiy_tarmoqlar_message[lang[message.chat.id]],
-                     reply_markup=get_social_media(lang[message.chat.id]))
-    bot.set_state(message.from_user.id, MyStates.social_media_st, message.chat.id)
+    if message.chat.type == 'private':
+        bot.send_message(message.chat.id, ijtimoiy_tarmoqlar_message[lang[message.chat.id]],
+                         reply_markup=get_social_media(lang[message.chat.id]))
+        bot.set_state(message.from_user.id, MyStates.social_media_st, message.chat.id)
 
 @bot.message_handler(state=MyStates.social_media_st,text=["⬅️ Ortga", "⬅️ Назад"])
 def back_to_header(message):
@@ -728,25 +737,29 @@ def security_social(message):
 ######################Location
 @bot.message_handler(state=MyStates.header_menu,text=["🚩 Do'kon Lokatsiyasi", "🚩 Расположение Магазина"])
 def location(message):
-    bot.send_location(message.from_user.id, 39.762905, 64.429983)
-    bot.send_message(message.chat.id, send_location_message[lang[message.chat.id]])
-    bot.delete_state(message.from_user.id, message.chat.id)
+    if message.chat.type == 'private':
+        bot.send_location(message.from_user.id, 39.762905, 64.429983)
+        bot.send_message(message.chat.id, send_location_message[lang[message.chat.id]])
+        bot.delete_state(message.from_user.id, message.chat.id)
 
-    header(message)
+        header(message)
 
 ############Kontakt
 @bot.message_handler(state=MyStates.header_menu, text=["📞️ Kontaktlar","📞️ Контакты"])
 def user_kontakt(message):
-    bot.send_message(message.chat.id, kontakt_message[lang[message.chat.id]])
-    bot.delete_state(message.from_user.id, message.chat.id)
-    header(message)
+    if message.chat.type == 'private':
+
+        bot.send_message(message.chat.id, kontakt_message[lang[message.chat.id]])
+        bot.delete_state(message.from_user.id, message.chat.id)
+        header(message)
 
 
 #############Settings
 @bot.message_handler(state=MyStates.header_menu,text=["⚙️ Sozlamalar", "⚙️ Настройки"])
 def user_setting(message):
-    bot.send_message(message.chat.id, message_to_user[lang[message.chat.id]], reply_markup=get_sozlamalar(lang[message.chat.id]))
-    bot.set_state(message.from_user.id, MyStates.settings, message.chat.id)
+    if message.chat.type == 'private':
+        bot.send_message(message.chat.id, message_to_user[lang[message.chat.id]], reply_markup=get_sozlamalar(lang[message.chat.id]))
+        bot.set_state(message.from_user.id, MyStates.settings, message.chat.id)
 
 @bot.message_handler(state=MyStates.settings,text=["⬅️ Ortga", "⬅️ Назад"])
 def back_from_settings(message):
@@ -754,8 +767,9 @@ def back_from_settings(message):
 
 @bot.message_handler(state=MyStates.settings,text=["🌐 Tilni tanlash", "🌐 Выбрать язык"])
 def user_language(message):
-    bot.send_message(message.chat.id, "Iltimos, tilni tanlang ⬇️ : Пожалуйста, выберите язык ⬇️",reply_markup=get_lang())
-    bot.set_state(message.from_user.id, MyStates.update_language, message.chat.id)
+    if message.chat.type == 'private':
+        bot.send_message(message.chat.id, "Iltimos, tilni tanlang ⬇️ : Пожалуйста, выберите язык ⬇️",reply_markup=get_lang())
+        bot.set_state(message.from_user.id, MyStates.update_language, message.chat.id)
 
 
 @bot.message_handler(state=MyStates.update_language,text=["🇺🇿O'zbek tili", "🇷🇺Pусский язык"])
@@ -775,8 +789,9 @@ def update_til(message):
 
 @bot.message_handler(commands=['orzu'])
 def admin(message):
-    bot.send_message(message.chat.id, "Quyidagilardan birini tanlang 👇🏻",reply_markup=get_admin_btn())
-    bot.set_state(message.from_user.id, MyStates.admin, message.chat.id)
+    if message.chat.type == 'private':
+        bot.send_message(message.chat.id, "Quyidagilardan birini tanlang 👇🏻",reply_markup=get_admin_btn())
+        bot.set_state(message.from_user.id, MyStates.admin, message.chat.id)
 
 @bot.message_handler(state=MyStates.admin,text="Tugma bilan xabar yuborish")
 def send_with_btn(message):
@@ -870,47 +885,48 @@ def add_another_button(message):
 # Handler for the "That's it" button
 @bot.message_handler(func=lambda message: message.text == "Tugmalarni jo'natish")
 def thats_it_button(message):
-    if not state.buttons:
-        # No buttons added, ask again
-        bot.send_message(message.chat.id, "Bironta ham tugma qo'shilmadi.Iltimos bironta tugma qo'shing!")
-        return
+    if message.chat.type == 'private':
+        if not state.buttons:
+            # No buttons added, ask again
+            bot.send_message(message.chat.id, "Bironta ham tugma qo'shilmadi.Iltimos bironta tugma qo'shing!")
+            return
 
-    # Create inline keyboard with the buttons
-    keyboard = InlineKeyboardMarkup()
-    for button in state.buttons:
-        button_name, button_url = button
-        keyboard.add(InlineKeyboardButton(button_name, url=button_url))
-    db = SQLite(DATABASE)
-    users = db.send_user_message()
-    if state.photo_id:
-        for user in users:
-            try:
-                if state.caption is None:
-                    bot.send_photo(user[0], state.photo_id,  reply_markup=keyboard)
-                else:
-                    if user[1]:
-                        bot.send_photo(user[0], state.photo_id, caption=f"<b>{user[1]}</b> " + state.caption, reply_markup=keyboard,parse_mode="HTML")
+        # Create inline keyboard with the buttons
+        keyboard = InlineKeyboardMarkup()
+        for button in state.buttons:
+            button_name, button_url = button
+            keyboard.add(InlineKeyboardButton(button_name, url=button_url))
+        db = SQLite(DATABASE)
+        users = db.send_user_message()
+        if state.photo_id:
+            for user in users:
+                try:
+                    if state.caption is None:
+                        bot.send_photo(user[0], state.photo_id,  reply_markup=keyboard)
                     else:
-                        bot.send_photo(user[0], state.photo_id, caption=state.caption, reply_markup=keyboard,parse_mode="HTML")
-            except Exception as e:
-                print(e)
-    elif state.video_id:
-        print('video')
-        for user in users:
-            try:
-                if state.caption is None:
-                    bot.send_video(user[0], state.video_id, reply_markup=keyboard)
-                else:
-                    if user[1]:
-                        bot.send_video(user[0], state.video_id, caption=f"<b>{user[1]}</b> " + state.caption, reply_markup=keyboard,parse_mode="HTML")
+                        if user[1]:
+                            bot.send_photo(user[0], state.photo_id, caption=f"<b>{user[1]}</b> " + state.caption, reply_markup=keyboard,parse_mode="HTML")
+                        else:
+                            bot.send_photo(user[0], state.photo_id, caption=state.caption, reply_markup=keyboard,parse_mode="HTML")
+                except Exception as e:
+                    print(e)
+        elif state.video_id:
+            print('video')
+            for user in users:
+                try:
+                    if state.caption is None:
+                        bot.send_video(user[0], state.video_id, reply_markup=keyboard)
                     else:
-                        bot.send_video(user[0], state.video_id, caption=state.caption, reply_markup=keyboard,parse_mode="HTML")
+                        if user[1]:
+                            bot.send_video(user[0], state.video_id, caption=f"<b>{user[1]}</b> " + state.caption, reply_markup=keyboard,parse_mode="HTML")
+                        else:
+                            bot.send_video(user[0], state.video_id, caption=state.caption, reply_markup=keyboard,parse_mode="HTML")
 
-            except Exception as e:
-                print(e)
-    state.buttons = []
-    admin(message)
-# Start the bot
+                except Exception as e:
+                    print(e)
+        state.buttons = []
+        admin(message)
+    # Start the bot
 
 
 @bot.message_handler(state=MyStates.admin_send_btn,text="⬅️ Ortga")
@@ -926,10 +942,11 @@ def back_admin_header(message):
 
 @bot.message_handler(state=MyStates.admin,text="👁 Foydalanuvchilar sonini ko'rish")
 def see_user(message):
-    db = SQLite(DATABASE)
-    db.calaculate_sum_user()
-    bot.send_message(message.chat.id, f"👤 Jami foydalanuvchilar soni: <b>{db.calaculate_sum_user()} ta</b>", reply_markup=get_admin_btn())
-    admin(message)
+    if message.chat.type == 'private':
+        db = SQLite(DATABASE)
+        db.calaculate_sum_user()
+        bot.send_message(message.chat.id, f"👤 Jami foydalanuvchilar soni: <b>{db.calaculate_sum_user()} ta</b>", reply_markup=get_admin_btn())
+        admin(message)
 @bot.message_handler(state=MyStates.admin,text="Tugmasiz xabar yuborish")
 def admin_send_message(message):
     bot.send_message(message.chat.id,"Quyidagilardan birini tanlang 👇🏻", reply_markup=get_admin_send())
@@ -943,29 +960,30 @@ def admin_send_video(message):
 
 @bot.message_handler(state=MyStates.video,content_types=['video'])
 def send_video_from_admin(message):
-    video = None
-    if message.video:
-        video = message.video.file_id
-        # Retrieve the admin's caption
-    caption = message.caption
-    # Send the message to each user
-    db = SQLite(DATABASE)
-    users = db.send_user_message()
+    if message.chat.type == 'private':
+        video = None
+        if message.video:
+            video = message.video.file_id
+            # Retrieve the admin's caption
+        caption = message.caption
+        # Send the message to each user
+        db = SQLite(DATABASE)
+        users = db.send_user_message()
 
 
-    # Send the message to each user
-    for user in users:
-        try:
-            if video:
-                if user[1]:
-                    bot.send_video(user[0], video, caption=f"<b>{user[1]}</b> " + caption,parse_mode="HTML")
+        # Send the message to each user
+        for user in users:
+            try:
+                if video:
+                    if user[1]:
+                        bot.send_video(user[0], video, caption=f"<b>{user[1]}</b> " + caption,parse_mode="HTML")
+                    else:
+                        bot.send_video(user[0], video, caption=caption,parse_mode="HTML")
                 else:
-                    bot.send_video(user[0], video, caption=caption,parse_mode="HTML")
-            else:
-                bot.send_message(user[0], caption)
-        except Exception as e:
-            print(e)
-    admin(message)
+                    bot.send_message(user[0], caption)
+            except Exception as e:
+                print(e)
+        admin(message)
 
 #
 @bot.message_handler(state=MyStates.video,text="⬅️ Ortga")
@@ -986,25 +1004,26 @@ def back_admin_text(message):
 
 @bot.message_handler(state=MyStates.photo,content_types=['photo'])
 def send_photo_from_admin(message):
-    photo = None
-    if message.photo:
-        photo = message.photo[-1].file_id
-    caption = message.caption
-    # Send the message to each user
-    db = SQLite(DATABASE)
-    users = db.send_user_message()
-    for user in users:
-        try:
-            if photo:
-                if user[1]:
-                    bot.send_photo(user[0], photo, caption=f"<b>{user[1]}</b> " + caption,parse_mode="HTML")
+    if message.chat.type == 'private':
+        photo = None
+        if message.photo:
+            photo = message.photo[-1].file_id
+        caption = message.caption
+        # Send the message to each user
+        db = SQLite(DATABASE)
+        users = db.send_user_message()
+        for user in users:
+            try:
+                if photo:
+                    if user[1]:
+                        bot.send_photo(user[0], photo, caption=f"<b>{user[1]}</b> " + caption,parse_mode="HTML")
+                    else:
+                        bot.send_photo(user[0], photo, caption=caption,parse_mode="HTML")
                 else:
-                    bot.send_photo(user[0], photo, caption=caption,parse_mode="HTML")
-            else:
-                bot.send_message(user[0], caption)
-        except Exception as e:
-            print(e)
-    admin(message)
+                    bot.send_message(user[0], caption)
+            except Exception as e:
+                print(e)
+        admin(message)
 
 
 
@@ -1023,21 +1042,22 @@ def back_admin_text(message):
 
 @bot.message_handler(state=MyStates.text_admin)
 def send_text_from_admin(message):
-    db = SQLite(DATABASE)
-    users = db.send_user_message()
-    sms = message.text
-    print(sms)
-    print(users[0][1])
-    for user in users:
-        try:
-            if user[1]:
-                bot.send_message(user[0], f"*{user[1]}*" + " " + sms,parse_mode="Markdown")
-            else:
-                bot.send_message(user[0], sms,parse_mode="Markdown")
+    if message.chat.type == 'private':
+        db = SQLite(DATABASE)
+        users = db.send_user_message()
+        sms = message.text
+        print(sms)
+        print(users[0][1])
+        for user in users:
+            try:
+                if user[1]:
+                    bot.send_message(user[0], f"*{user[1]}*" + " " + sms,parse_mode="Markdown")
+                else:
+                    bot.send_message(user[0], sms,parse_mode="Markdown")
 
-        except Exception as e:
-            print(e)
-    admin(message)
+            except Exception as e:
+                print(e)
+        admin(message)
 
 
 
