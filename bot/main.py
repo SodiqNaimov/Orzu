@@ -150,7 +150,7 @@ def send_phone_number(message):
 def final_second(message):
     user_dict[message.chat.id]['phone_number'] = message.text
     adrdress_phone = "📍Адрес: " + str(user_dict[message.chat.id]['location']) + '\n' + '📱 Номер телефона: ' + str(user_dict[message.chat.id]['phone_number'])
-    bot.send_location(-963466862, user_dict[message.chat.id]['Latitude'],  user_dict[message.chat.id]['Longitude'])
+    bot.send_location(-1001929634889, user_dict[message.chat.id]['Latitude'],  user_dict[message.chat.id]['Longitude'])
     db = SQLite(DATABASE)
     rows = db.basket_user(message.chat.id)
     db.insert_month(message.chat.id)
@@ -207,7 +207,7 @@ def final_second(message):
         order_number = i[0]
 
     if message.from_user.username == None:
-        bot.send_message(-963466862,
+        bot.send_message(-1001929634889,
                          f"*Yangi buyurtma!\n\n🧾* *Buyurtma raqami:* *#000{str(order_number)}* *\n\n{text_2}* *Jami:* *{str(formatted_number2)} so'm* \n\n{str(adrdress_phone)} \n👤 *Telegram account*: {mention} \n📲 Buyurtma berish turi: *{type_deliver[message.chat.id]}*",
                          parse_mode="Markdown")
 
@@ -215,7 +215,7 @@ def final_second(message):
         # bot.send_message(-963466862,
         #                  f"*Yangi buyurtma!\n\n🧾* *Buyurtma raqami:* *#000{str(order_number)}* *\n\n{text}* *Jami:* *{str(d3)} so'm* \n\n{str(adrdress_phone)} \n👤 *Telegram account*: {mention} \n📲 Buyurtma berish turi: *{type_deliver[message.chat.id]}*",
         #                  parse_mode="Markdown")
-        bot.send_message(-963466862,
+        bot.send_message(-1001929634889,
                          "<b>Yangi buyurtma! \n\n🧾 Buyurtma raqami: </b>" + '<b>' + '#000' + str(order_number) + '</b>' + '\n\n' + text + " <b>Jami</b>: " + "<b>" + str(formatted_number2) + "</b>" + "<b> so'm</b> " + "\n\n" + adrdress_phone + "\n👤 <b>Telegram account: @</b>" + silka + "<b>\n📲 Buyurtma berish turi: </b>" + "<b>" + type_deliver[message.chat.id] + "</b>",
                          parse_mode="HTML")
     bot.send_message(message.chat.id, final_message[lang[message.chat.id]].format(text,formatted_number2))
@@ -238,7 +238,7 @@ def final_second(message):
 def final(message):
     user_dict[message.chat.id]['phone_number'] = message.contact.phone_number
     adrdress_phone = "📍Адрес: " + str(user_dict[message.chat.id]['location']) + '\n' + '📱 Номер телефона: ' + str(user_dict[message.chat.id]['phone_number'])
-    bot.send_location(-963466862, user_dict[message.chat.id]['Latitude'],  user_dict[message.chat.id]['Longitude'])
+    bot.send_location(-1001929634889, user_dict[message.chat.id]['Latitude'],  user_dict[message.chat.id]['Longitude'])
     db = SQLite(DATABASE)
     rows = db.basket_user(message.chat.id)
     db.insert_month(message.chat.id)
@@ -297,7 +297,7 @@ def final(message):
         order_number = i[0]
 
     if message.from_user.username == None:
-        bot.send_message(-963466862,
+        bot.send_message(-1001929634889,
                          f"*Yangi buyurtma!\n\n🧾* *Buyurtma raqami:* *#000{str(order_number)}* *\n\n{text_2}* *Jami:* *{str(d3)} so'm* \n\n{str(adrdress_phone)} \n👤 *Telegram account*: {mention} \n📲 Buyurtma berish turi: *{type_deliver[message.chat.id]}*",
                          parse_mode="Markdown")
 
@@ -305,7 +305,7 @@ def final(message):
         # bot.send_message(-963466862,
         #                  f"*Yangi buyurtma!\n\n🧾* *Buyurtma raqami:* *#000{str(order_number)}* *\n\n{text}* *Jami:* *{str(d3)} so'm* \n\n{str(adrdress_phone)} \n👤 *Telegram account*: {mention} \n📲 Buyurtma berish turi: *{type_deliver[message.chat.id]}*",
         #                  parse_mode="Markdown")
-        bot.send_message(-963466862,
+        bot.send_message(-1001929634889,
                          "<b>Yangi buyurtma! \n\n🧾 Buyurtma raqami: </b>" + '<b>' + '#000' + str(order_number) + '</b>' + '\n\n' + text + " <b>Jami</b>: " + "<b>" + str(d3) + "</b>" + "<b> so'm</b> " + "\n\n" + adrdress_phone + "\n👤 <b>Telegram account: @</b>" + silka + "<b>\n📲 Buyurtma berish turi: </b>" + "<b>" + type_deliver[message.chat.id] + "</b>",
                          parse_mode="HTML")
     bot.send_message(message.chat.id, final_message[lang[message.chat.id]].format(text,d3))
@@ -344,7 +344,7 @@ def delete_from_user(message):
 def catalog(message):
     if message.chat.type == 'private':
         btn_back[message.chat.id] = {'back_catalog':'','back_sub_catalog':'','back_in_sub_catalog_show':'','back_in_pod_sub_catalog_show':'','back_from_product':'','back_from_basket':'',
-                                     'back_man_in_sub_catalog_show':''}
+                                     'back_man_in_sub_catalog_show':'','yangi_product':''}
 
         bot.send_message(message.chat.id, catalog_message[lang[message.chat.id]],reply_markup=get_catalog(lang[message.chat.id]))
         bot.set_state(message.from_user.id, MyStates.catalog_st, message.chat.id)
@@ -389,6 +389,7 @@ def back_catalog_menu(message):
 ############################################################sub_catalog
 @bot.message_handler(state=MyStates.sub_catalog)
 def sub_catalog(message):
+    print(message.text)
     print(btn_back[message.chat.id])
     print(message.text)
     # bot.edit_message_text(chat_id=message.chat.id,message_id=message.message_id,text=message_to_user[lang[message.chat.id]],reply_markup=get_second_sub_catalog(lang[message.chat.id],message.text)[0])
@@ -416,8 +417,9 @@ def back_from_product(message):
 ############################################################in_sub_catalog_show
 @bot.message_handler(state=MyStates.in_sub_catalog)
 def in_sub_catalog_show(message):
-    print(message.text)
+    # print(message.text)
     if len(get_sub_catalog(lang[message.chat.id],message.text)[1]) == 0:
+        print('in_sub_catalog_show')
 
         print(btn_back[message.chat.id])
 
@@ -434,7 +436,7 @@ def in_sub_catalog_show(message):
 
     else:
         print(btn_back[message.chat.id])
-
+        print('in_sub_catalog_show_else')
         btn_back[message.chat.id]['back_in_sub_catalog_show'] = (get_sub_catalog(lang[message.chat.id], message.text)[2])
 
         bot.send_message(message.chat.id, message_to_user[lang[message.chat.id]], reply_markup=get_sub_catalog(lang[message.chat.id],message.text)[0])
@@ -444,6 +446,7 @@ def in_sub_catalog_show(message):
 
 @bot.message_handler(state=MyStates.in_pod_sub_catalog,text = ["⬅️ Ortga","⬅️ Назад"])
 def back_from_product(message):
+    print('back_from_product')
 
     bot.send_message(message.chat.id, message_to_user[lang[message.chat.id]],
                      reply_markup=get_back_catalog(lang[message.chat.id], btn_back[message.chat.id]['back_sub_catalog'] ))
@@ -455,6 +458,8 @@ def back_from_product(message):
 @bot.message_handler(state=MyStates.back_from_products,text = ["⬅️ Ortga","⬅️ Назад"])
 def back_from_products_btn(message):
     if btn_back[message.chat.id]['back_in_pod_sub_catalog_show'] == '':
+        print('back_from_products_btn')
+
 
         bot.send_message(message.chat.id, message_to_user[lang[message.chat.id]],
                          reply_markup=get_back_catalog(lang[message.chat.id],
@@ -465,6 +470,8 @@ def back_from_products_btn(message):
 
     # Code to be executed if either condition is true
     else:
+        print('back_from_products_btn_else')
+
         bot.send_message(message.chat.id, message_to_user[lang[message.chat.id]],
                          reply_markup=get_sec_back_catalog(lang[message.chat.id], btn_back[message.chat.id]['back_in_pod_sub_catalog_show']))
         bot.delete_message(chat_id=message.chat.id, message_id=message.message_id - 1)
@@ -482,7 +489,6 @@ def in_pod_sub_catalog_show(message):
         print('man')
         # btn_back[message.chat.id]['back_from_product'] = (get_sub_catalog(lang[message.chat.id], message.text)[2])
         btn_back[message.chat.id]['back_man_in_sub_catalog_show'] = (get_sub_catalog(lang[message.chat.id], message.text)[2])
-
         bot.send_message(message.chat.id, message_to_user[lang[message.chat.id]], reply_markup=get_products(lang[message.chat.id],message.text)[0])
         bot.delete_message(chat_id=message.chat.id, message_id=message.message_id - 1)
 
@@ -499,6 +505,7 @@ def in_pod_sub_catalog_show(message):
 
 @bot.message_handler(state=MyStates.in_product,text = ["⬅️ Ortga","⬅️ Назад"])
 def back_from_four_to(message):
+    print('back_from_four_to')
     bot.send_message(message.chat.id, message_to_user[lang[message.chat.id]],
                      reply_markup=get_back_catalog(lang[message.chat.id], btn_back[message.chat.id]['back_in_sub_catalog_show'] ))
     bot.delete_message(chat_id=message.chat.id, message_id=message.message_id - 1)
@@ -517,7 +524,10 @@ def back_from_four_to(message):
 def in_last_product(message):
     select_user[message.chat.id] = []
     db = SQLite(DATABASE)
+    print('s')
+    print(message.text)
     row = db.get_parent_id_from_database(lang[message.chat.id],message.text)
+    print(row)
     # btn_back[message.chat.id]['back_from_product'] = (get_sub_catalog(lang[message.chat.id], message.text)[2])
     btn_back[message.chat.id]['back_from_product'] = row[0][0]
     select_user[message.chat.id] = []
@@ -525,13 +535,61 @@ def in_last_product(message):
     #                       text=message_to_user[lang[message.chat.id]],
     #                       reply_markup=get_products(lang[message.chat.id], message.text)[0])
     bot.send_message(message.chat.id, message_to_user[lang[message.chat.id]],
-                     reply_markup=get_products(lang[message.chat.id], message.text)[0])
+                     reply_markup=get_sub_catalog(lang[message.chat.id], message.text)[0])
     bot.delete_message(chat_id=message.chat.id, message_id=message.message_id - 1)
 
-    bot.set_state(message.from_user.id, MyStates.back_from_products, message.chat.id)
+    bot.set_state(message.from_user.id, MyStates.yangi_product_st, message.chat.id)
+@bot.message_handler(state=MyStates.yangi_product_st,text = ["⬅️ Ortga","⬅️ Назад"])
+def back_yangi_product(message):
+    print("back_from_products_btn")
+    bot.send_message(message.chat.id, message_to_user[lang[message.chat.id]],
+                     reply_markup=get_back_catalog(lang[message.chat.id], btn_back[message.chat.id]['back_from_product']))
+    bot.delete_message(chat_id=message.chat.id, message_id=message.message_id - 1)
+
+    bot.set_state(message.from_user.id, MyStates.in_pod_sub_catalog, message.chat.id)
+
+@bot.message_handler(state=MyStates.yangi_product_st)
+def yangi_product(message):
+    select_user[message.chat.id] = []
+    db = SQLite(DATABASE)
+    print('01')
+    print(message.text)
+    row = db.get_parent_id_from_database(lang[message.chat.id],message.text)
+    print(row)
+    # btn_back[message.chat.id]['back_from_product'] = (get_sub_catalog(lang[message.chat.id], message.text)[2])
+    btn_back[message.chat.id]['yangi_product'] = row[0][0]
+    select_user[message.chat.id] = []
+    # bot.edit_message_text(chat_id=message.chat.id, message_id=message.message_id,
+    #                       text=message_to_user[lang[message.chat.id]],
+    #                       reply_markup=get_products(lang[message.chat.id], message.text)[0])
+    bot.send_message(message.chat.id, message_to_user[lang[message.chat.id]],
+                     reply_markup=get_products(lang[message.chat.id], message.text)[0])
+    bot.delete_message(chat_id=message.chat.id, message_id=message.message_id - 1)
+    bot.set_state(message.from_user.id, MyStates.back_from_products , message.chat.id)
+
+
+
+
+@bot.message_handler(state=MyStates.yangi_product_st_s,text = ["⬅️ Ortga","⬅️ Назад"])
+def back_yangi_product_S(message):
+    bot.send_message(message.chat.id, message_to_user[lang[message.chat.id]],
+                     reply_markup=get_back_catalog(lang[message.chat.id], btn_back[message.chat.id]['yangi_product']))
+    bot.delete_message(chat_id=message.chat.id, message_id=message.message_id - 1)
+
+    bot.set_state(message.from_user.id, MyStates.in_pod_sub_catalog, message.chat.id)
 
 @bot.message_handler(state=MyStates.back_from_products,text = ["⬅️ Ortga","⬅️ Назад"])
 def back_from_products_btn(message):
+    print("back_from_products_btn")
+    bot.send_message(message.chat.id, message_to_user[lang[message.chat.id]],
+                     reply_markup=get_back_catalog(lang[message.chat.id], btn_back[message.chat.id]['back_from_product']))
+    bot.delete_message(chat_id=message.chat.id, message_id=message.message_id - 1)
+
+    bot.set_state(message.from_user.id, MyStates.in_pod_sub_catalog, message.chat.id)
+
+@bot.message_handler(state=MyStates.back_from_products,text = ["⬅️ Ortga","⬅️ Назад"])
+def back_from_products_btn(message):
+    print("back_from_products_btn")
     bot.send_message(message.chat.id, message_to_user[lang[message.chat.id]],
                      reply_markup=get_back_catalog(lang[message.chat.id], btn_back[message.chat.id]['back_from_product']))
     bot.delete_message(chat_id=message.chat.id, message_id=message.message_id - 1)
@@ -541,6 +599,7 @@ def back_from_products_btn(message):
 
 @bot.message_handler(state=MyStates.back_from_products)
 def products(message):
+    print('asdasdas')
     select_user[message.chat.id] = []
     basket_to_user[message.chat.id] = message.text
     db = SQLite(DATABASE)
@@ -627,9 +686,9 @@ def send_voice(message):
     silka = message.from_user.username
     chat_id = "6169983011"
     if message.from_user.username == None:
-        bot.send_voice(-963466862, file_id, caption=f'*\n\n👤 Telegram account*: {mention}', parse_mode="Markdown")
+        bot.send_voice(-1001929634889, file_id, caption=f'*\n\n👤 Telegram account*: {mention}', parse_mode="Markdown")
     else:
-        bot.send_voice(-963466862, file_id, caption="\n\n👤 <b>Telegram account: @</b>" + silka, parse_mode="HTML")
+        bot.send_voice(-1001929634889, file_id, caption="\n\n👤 <b>Telegram account: @</b>" + silka, parse_mode="HTML")
 
     bot.send_message(message.chat.id, handle_message[lang[message.chat.id]],reply_markup=get_handle_complaint(lang[message.chat.id]))
     header(message)
@@ -666,9 +725,9 @@ def send_hand_complaint(message):
     fikr_rus_in = message.text
     silka = message.from_user.username
     if message.from_user.username == None:
-        bot.send_message(-963466862, fikr_rus_in + f'*\n\n👤 Telegram account*: {mention}', parse_mode="Markdown")
+        bot.send_message(-1001929634889, fikr_rus_in + f'*\n\n👤 Telegram account*: {mention}', parse_mode="Markdown")
     else:
-        bot.send_message(-963466862, fikr_rus_in + "\n\n👤 <b>Telegram account: @</b>" + silka, parse_mode="HTML")
+        bot.send_message(-1001929634889, fikr_rus_in + "\n\n👤 <b>Telegram account: @</b>" + silka, parse_mode="HTML")
 
     bot.send_message(message.chat.id, handle_message[lang[message.chat.id]],reply_markup=get_handle_complaint(lang[message.chat.id]))
     header(message)
@@ -1074,4 +1133,4 @@ bot.add_custom_filter(custom_filters.TextMatchFilter())
 bot.add_custom_filter(custom_filters.StateFilter(bot))
 bot.add_custom_filter(custom_filters.IsDigitFilter())
 bot.add_custom_filter(custom_filters.ChatFilter())
-# bot.infinity_polling()
+bot.infinity_polling()

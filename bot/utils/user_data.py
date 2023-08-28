@@ -74,7 +74,8 @@ class MyStates(StatesGroup):
     admin_send_photo_btn = State()
     admin_ask_button_name = State()
     admin_send_video_btn = State()
-
+    yangi_product_st = State()
+    yangi_product_st_s = State()
 
 class SQLite:
     def __init__(self, database):
@@ -232,7 +233,16 @@ class SQLite:
             rows = self.cursor.fetchall()
 
             return rows
+    def select_cougar_id(self,lang,text):
+        with self.connection:
+            if lang == 'uz':
+                self.cursor.execute("""SELECT id FROM products_category WHERE name_uz == ?""", [text])
+            if lang =='ru':
+                self.cursor.execute("""SELECT id FROM products_category WHERE name_ru == ?""", [text])
 
+            rows = self.cursor.fetchall()
+
+            return rows
     def select_product_show(self,lang,text):
         with self.connection:
             if lang == 'uz':
